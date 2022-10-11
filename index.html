@@ -10,12 +10,67 @@
 <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
 
 <style>
+	
+	 
+      table { 
+      table-layout: fixed;
+      }
+      
+      th,td { 
+      width: "30%";
+      overflow: hidden
+      }
+      .collapsible {
+        background-color: #eee;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+      }
+      .collapseHeader {
+        background-color: #eee;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+      }
+
+        .collapsible:after {
+        content: '\02795'; /* Unicode character for "plus" sign (+) */
+        font-size: 13px;
+        color: white;
+        float: right;
+        margin-left: 5px;
+      }
+
+      .active:after {
+        content: "\2796"; /* Unicode character for "minus" sign (-) */
+      }
+
+      /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+      .active, .collapsible:hover {
+        background-color: #ccc;
+      }
+
+      /* Style the collapsible content. Note: hidden by default */
+      .content {
+        padding: 0 18px;
+
+        overflow: hidden;
+        background-color: #444;
+      }
+	
 	body { margin: 0; padding: 0;}
 
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        }
+  
 
 	#map { position: absolute; top: 0; bottom: 0; width: 100%;}
 	#map canvas {cursor: crosshair;}
@@ -188,28 +243,61 @@ async function mapData(){
 
         // Get features at point click
         const features = map.queryRenderedFeatures(e.point, {layers: ['Data Layer Values']});
+	const rArray = features;
          // Limit the number of properties we're displaying for legibility and performance
        
         // Create the table
+ function makeTable (rArray) {
+                 var tbl = ('<table width = 100%><tr>');
+             
+                 //create header
+                var display = "<button  type=\"button\" class=\"collapseHeader\"><table><tr>  <th>Label</th> <th> Title</th> <th>Date Published</th></tr> </table></button> ";
+                 var curLabel;
+                 var curTitle;
+                 var curDate;
+                 
 
-        function makeTable (json) {
-            var tbl = ('<table width = 100%><tr>');
-            for (var key in features[0].properties){
-                tbl = tbl+'<th>'+key+'</th>';
-            };
-            tbl = tbl + '</tr>'
-            for (var i = 0; i < features.length; i++) {
-                tbl = tbl+"<tr>"
-                // var keys = Object.keys(obj);
-                for (var key in features[i].properties)
-                    tbl = tbl+("<td>" + features[i].properties[key] + "</td>");
-                    // tr = tr+("<td>" + json[i].properties.label + "</td>");
-                    // tr = tr+("<td>" + json[i].properties.label + "</td>");
-                tbl = tbl+"</tr>"
-            };
-            tbl = tbl +'</table>';
-            return tbl;
-            }
+                 //enclose it in a scrollable thing?? (idk how)
+       //for loop to create all the collapsible stuff
+      for (var i = 0; i < rArray.length; i++) {
+        //rArray.length!!!
+        curLabel = "";
+        
+        curTitle = "";
+        
+        curDate = "";
+        
+        //make sure they have titles etc before adding them
+        if (rArray[i].properties.label) {
+          curLabel = rArray[i].properties.label;
+          
+        }
+        if (rArray[i].properties.title) {
+          curTitle = rArray[i].properties.title;
+        }
+        if (rArray[i].properties.datePub) {
+          curDate = rArray[i].properties.datePub;
+        }
+        //create title info  
+        var str1 = "<button  type=\"button\" class=\"collapsible\"><table><tr>  <th> "
+        var str2 = "</th> <th>"
+          display = display + str1 + curLabel +str2 + curTitle + "</th> <th>" + curDate + "</th></tr> </table></button> "
+          
+        
+        //add info to dropdown
+        display = display + "<div class=\"content\">"
+         for (var key in rArray[i].properties) {
+          display = display + "<p>"+ key +":   " + rArray[i].properties[key] + "</p>" ;
+           
+           
+         }
+
+                
+           display = display+ "</div>"      
+         }
+    
+        
+              return display }
 
         // document.getElementById('features').innerHTML = displayFeatures[0].properties //makeTable(displayFeatures)
         document.getElementById('features').innerHTML = makeTable()
